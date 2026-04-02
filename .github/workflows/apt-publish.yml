@@ -8,10 +8,6 @@ on:
 jobs:
   build-and-publish:
     runs-on: ubuntu-24.04
-    permissions:
-      contents: write
-      pages: write
-      id-token: write
 
     steps:
       - uses: actions/checkout@v4
@@ -31,39 +27,50 @@ jobs:
           gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
           passphrase: ${{ secrets.GPG_PASSPHRASE }}
           git_user_signingkey: true
-          git_commit_gpgsign: true
 
-      - name: Get version from tag
+      - name: Get version
         id: version
         run: echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
 
-      - name: Build .deb package
-        run: cargo deb --no-build
+      - name: Build .deb
+        run: cargo deb
 
-      - name: Create APT repository structure with reprepro
+      - name: Create APT repository with reprepro
         run: |
-          mkdir -p apt-repo/conf
-          cat > apt-repo/conf/distributions <<EOF
+          mkdir -p repo/conf
+          cat > repo/conf/distributions <<EOF
           Origin: Ecopower
           Label: Ecopower
           Suite: stable
           Codename: stable
           Architectures: amd64
           Components: main
-          SignWith: ${{ steps.import_gpg.outputs.fingerprint }}
+          SignWith: ${{ steps.import_gpg.outputs.fingerprint || 'true' }}
           EOF
 
-          # Include the built .deb
-          reprepro --basedir apt-repo includedeb stable target/debian/ecopower_*.deb
+          # Include .deb vào repository
+          reprepro --basedir repo includedeb stable target/debian/ecopower_*.deb
 
           # Copy public key
-          cp $HOME/.gnupg/pubring.gpg apt-repo/pubkey.gpg
+          gpg --armor --export > repo/pubkey.gpg
+
+      - name: Create simple index.html for browser
+        run: |
+          cat > repo/index.html <<EOF
+          <!DOCTYPE html>
+          <html><head><title>Ecopower APT Repository</title></head>
+          <body>
+            <h1>Ecopower APT Repository</h1>
+            <p>Repository for Ecopower system monitor.</p>
+            <p><strong>Public key:</strong> <a href="pubkey.gpg">pubkey.gpg</a></p>
+          </body>
+          </html>
+          EOF
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./apt-repo
-          destination_dir: ./
+          publish_dir: ./repo
           publish_branch: gh-pages
-          force_orphan: true
+          # Không dùng force_orphan để giữ cấu trúc
