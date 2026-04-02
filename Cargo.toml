@@ -1,6 +1,6 @@
 [package]
 name = "ecopower"
-version = "0.4.2"
+version = "0.4.3"
 edition = "2026"
 authors = ["Đức Trường"]
 description = "Ecopower - Modern System Resource Monitor with History Charts"
