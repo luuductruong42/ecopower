@@ -1,4 +1,4 @@
-name: Build .deb and Publish APT Repository
+name: Build .deb Package
 
 on:
   push:
@@ -6,71 +6,24 @@ on:
       - 'v*'
 
 jobs:
-  build-and-publish:
+  build:
     runs-on: ubuntu-24.04
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
 
-      - name: Install cargo-deb and reprepro
-        run: |
-          cargo install cargo-deb
-          sudo apt-get update
-          sudo apt-get install -y reprepro gnupg
-
-      - name: Import GPG key
-        uses: crazy-max/ghaction-import-gpg@v6
-        with:
-          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
-          passphrase: ${{ secrets.GPG_PASSPHRASE }}
-          git_user_signingkey: true
-
-      - name: Get version
-        id: version
-        run: echo "version=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+      - name: Install cargo-deb
+        run: cargo install cargo-deb
 
       - name: Build .deb
         run: cargo deb
 
-      - name: Create APT repository with reprepro
-        run: |
-          mkdir -p repo/conf
-          cat > repo/conf/distributions <<EOF
-          Origin: Ecopower
-          Label: Ecopower
-          Suite: stable
-          Codename: stable
-          Architectures: amd64
-          Components: main
-          SignWith: ${{ steps.import_gpg.outputs.fingerprint || 'true' }}
-          EOF
-
-          # Include .deb vào repository
-          reprepro --basedir repo includedeb stable target/debian/ecopower_*.deb
-
-          # Copy public key
-          gpg --armor --export > repo/pubkey.gpg
-
-      - name: Create simple index.html for browser
-        run: |
-          cat > repo/index.html <<EOF
-          <!DOCTYPE html>
-          <html><head><title>Ecopower APT Repository</title></head>
-          <body>
-            <h1>Ecopower APT Repository</h1>
-            <p>Repository for Ecopower system monitor.</p>
-            <p><strong>Public key:</strong> <a href="pubkey.gpg">pubkey.gpg</a></p>
-          </body>
-          </html>
-          EOF
-
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
+      - name: Upload .deb to Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./repo
-          publish_branch: gh-pages
-          # Không dùng force_orphan để giữ cấu trúc
+          files: target/debian/ecopower_*.deb
