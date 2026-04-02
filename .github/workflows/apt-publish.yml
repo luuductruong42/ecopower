@@ -7,7 +7,9 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest     # ← Sửa thành ubuntu-latest
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write     # Quyền quan trọng để upload asset vào Release
 
     steps:
       - name: Checkout code
@@ -22,8 +24,10 @@ jobs:
       - name: Build .deb
         run: cargo deb
 
-      - name: Upload .deb to Release
+      - name: Upload .deb to GitHub Release
         uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/tags/')
         with:
           files: target/debian/ecopower_*.deb
+          draft: false
+          prerelease: false
+          fail_on_unmatched_files: true
