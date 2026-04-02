@@ -1,0 +1,30 @@
+#!/bin/sh
+set -e
+
+echo "=============================================================="
+echo "               Ecopower đã được cài đặt thành công!            "
+echo "=============================================================="
+echo ""
+echo "📌 Cách sử dụng nhanh:"
+echo "   ecopower                    → Mở chương trình"
+echo "   gtk-launch ecopower         → Mở từ menu ứng dụng"
+echo ""
+echo "📖 Xem tài liệu:"
+echo "   less /usr/share/doc/ecopower/README.md"
+echo "   cat /usr/share/doc/ecopower/copyright     (License)"
+echo ""
+echo "⌨️  Phím tắt trong chương trình:"
+echo "   h   → Xem Help"
+echo "   1-4 → Chuyển tab"
+echo "   f   → Lọc process"
+echo "   k   → Kill process"
+echo "   q   → Thoát"
+echo ""
+echo "Cảm ơn bạn đã sử dụng Ecopower!"
+echo "=============================================================="
+
+# Cập nhật menu và icon cache
+update-desktop-database /usr/share/applications/ 2>/dev/null || true
+gtk-update-icon-cache /usr/share/icons/hicolor -f -q 2>/dev/null || true
+
+exit 0

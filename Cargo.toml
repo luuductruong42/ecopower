@@ -26,10 +26,13 @@ for CPU, Memory, and Network usage, along with process management and disk infor
 depends = "$auto"
 section = "utils"
 priority = "optional"
+maintainer-scripts = "debian/"
 
 # Tự động tạo lệnh ecopower và menu ứng dụng
 assets = [
     ["target/release/ecopower", "usr/bin/ecopower", "755"],
     ["debian/ecopower.desktop", "usr/share/applications/ecopower.desktop", "644"],
     ["assets/ecopower.png", "usr/share/icons/hicolor/128x128/apps/ecopower.png", "644"],
+    ["README.md", "usr/share/doc/ecopower/README.md", "644"],
+    ["LICENSE", "usr/share/doc/ecopower/LICENSE", "644"],
 ]
