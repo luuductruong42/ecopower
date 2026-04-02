@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Ecopower
+Comment=Modern System Resource Monitor with History Charts
+Exec=ecopower
+Icon=ecopower
+Terminal=false
+Type=Application
+Categories=System;Monitor;Utility;
+Keywords=system;monitor;cpu;memory;process;
+StartupNotify=true

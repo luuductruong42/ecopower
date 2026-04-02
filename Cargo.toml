@@ -1,12 +1,35 @@
 [package]
 name = "ecopower"
-version = "0.2.0"
+version = "0.3.0"
 edition = "2021"
+authors = ["Đức Trường"]
+description = "Ecopower - Modern System Resource Monitor with History Charts"
+license = "MIT"
+homepage = "https://github.com/luuductruong42/ecopower"
+repository = "https://github.com/luuductruong42/ecopower"
+readme = "README.md"
 
 [dependencies]
-ratatui = { version = "0.29", features = ["all-widgets"] }
-crossterm = { version = "0.28", features = ["event-stream"] }
-sysinfo = { version = "0.33", features = ["serde"] }
-tokio = { version = "1", features = ["full"] }
 anyhow = "1.0"
-chrono = { version = "0.4", features = ["serde"] }
+crossterm = { version = "0.28", features = ["event-stream"] }
+ratatui = { version = "0.29", features = ["all-widgets"] }
+sysinfo = "0.33"
+
+[package.metadata.deb]
+maintainer = "Đức Trường luuductruong42@gmail.com"   # ← THAY EMAIL THẬT CỦA BẠN VÀO ĐÂY
+copyright = "2026, Đức Trường"
+license-file = ["LICENSE", "4"]
+extended-description = """\
+Ecopower is a beautiful, lightweight and modern system resource monitor for Ubuntu.
+Written in Rust with Ratatui, it provides real-time monitoring and history charts 
+for CPU, Memory, and Network usage, along with process management and disk information."""
+depends = "$auto"
+section = "utils"
+priority = "optional"
+
+# Tự động tạo lệnh ecopower và menu ứng dụng
+assets = [
+    ["target/release/ecopower", "usr/bin/ecopower", "755"],
+    ["debian/ecopower.desktop", "usr/share/applications/ecopower.desktop", "644"],
+    ["assets/ecopower.png", "usr/share/icons/hicolor/128x128/apps/ecopower.png", "644"],
+]
